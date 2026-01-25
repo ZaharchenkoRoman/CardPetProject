@@ -15,9 +15,9 @@ import SchoolIcon from "@mui/icons-material/School"
 import EditIcon from "@mui/icons-material/Edit"
 import DeleteIcon from "@mui/icons-material/Delete"
 import { useAppSelector } from "@/src/store/hooks"
-import DeleteModal from "@/src/components/mainPage/modal/DeleteModal"
-import useDeleteModal from "@/src/components/tableComponent/useDeleteModal"
-import { RenamePackModal } from "@/src/components/tableComponent/RenamePackModal"
+import DeletePackModal from "@/src/components/mainPageComponent/DeletePackModal"
+import useDeletePackModal from "@/src/components/mainPageComponent/useDeletePackModal"
+import { RenamePackModal } from "@/src/components/mainPageComponent/RenamePackModal"
 import { useState } from "react"
 import Link from "next/link"
 import { packType } from "@/src/api/packsApi"
@@ -28,7 +28,11 @@ interface propsType {
 }
 
 export default function TableComponent(props: propsType) {
+  const { sx, cardPacks } = props
   const { name } = useAppSelector((state) => state.auth)
+  const { deleteModal, openDeleteModal, nameDeletePack, isDeletePack, closeDeleteModal } =
+    useDeletePackModal()
+
   const [packId, setPackId] = useState<string>("")
   const [isOpen, setIsOpen] = useState(false)
   const openHandler = (id: string) => {
@@ -36,11 +40,6 @@ export default function TableComponent(props: propsType) {
     setPackId(id)
   }
   const closeHandler = () => setIsOpen(false)
-
-  const { deleteModal, openDeleteModal, nameDeletePack, isDeletePack, closeDeleteModal } =
-    useDeleteModal()
-
-  const { sx, cardPacks } = props
 
   return (
     <TableContainer
@@ -97,13 +96,14 @@ export default function TableComponent(props: propsType) {
           ))}
         </TableBody>
       </Table>
-      <DeleteModal
+      <DeletePackModal
         packName={nameDeletePack}
         deleteModal={deleteModal}
         packId={isDeletePack}
         closeDeleteModal={closeDeleteModal}
       />
       <RenamePackModal
+        packName={nameDeletePack}
         packId={packId}
         open={isOpen}
         onCloseHandler={closeHandler}

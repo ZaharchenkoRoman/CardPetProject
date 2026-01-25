@@ -1,24 +1,24 @@
 import { Popover } from "@mui/material"
-import { ReactNode } from "react"
+import { ReactNode, useState } from "react"
 
-interface propsTypes {
-  open: boolean
-  handleClose: () => void
-  children: ReactNode
-  anchor: HTMLButtonElement | null
-}
+export default function useCustomPopover() {
+  const [anchor, setAnchor] = useState<HTMLButtonElement | null>(null)
+  const closeHandler = () => setAnchor(null)
+  const open = Boolean(anchor)
 
-export default function CustomPopover(props: propsTypes) {
-  const { handleClose, open, children, anchor } = props
-  return (
-    <Popover
-      anchorEl={anchor}
-      sx={{ display: "flex", flexDirection: "column" }}
-      open={open}
-      onClose={handleClose}
-      anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-    >
-      {children}
-    </Popover>
-  )
+  const CustomPopoverElement = ({ children }: { children: ReactNode }) => {
+    if (!anchor) return null
+    return (
+      <Popover
+        anchorEl={anchor}
+        sx={{ display: "flex", flexDirection: "column" }}
+        open={open}
+        onClose={closeHandler}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      >
+        {children}
+      </Popover>
+    )
+  }
+  return { CustomPopoverElement, setAnchor }
 }

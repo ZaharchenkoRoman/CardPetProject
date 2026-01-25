@@ -1,15 +1,11 @@
-import type { Metadata } from "next";
-import CheckEmailPage from "@/src/components/authComponents/checkEmailPage/CheckEmailPage";
+import type { Metadata } from "next"
+import CheckEmailPage from "@/src/components/authComponents/checkEmailPage/CheckEmailPage"
 export const metadata: Metadata = {
   title: "Email Page",
-};
+}
 
 const Page = () => {
-  return (
-    <div>
-      <CheckEmailPage />
-    </div>
-  );
-};
+  return <CheckEmailPage />
+}
 
-export default Page;
+export default Page

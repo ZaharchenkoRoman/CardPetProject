@@ -1,33 +1,48 @@
 import { AxiosInstance } from "axios"
 
-export class authApi {
+export class AuthApi {
   constructor(private instance: AxiosInstance) {}
 
-  async register(data: { email: string; password: string }) {
-    return await this.instance.post<{
-      addedUser: string
-      error?: string
-    }>("auth/register", data)
+  register = async (data: registerDTO) => {
+    return await this.instance.post<registerResponse>("auth/register", data).then((res) => res.data)
   }
 
-  async login(data: { email: string; password: string; rememberMe: boolean }) {
-    return await this.instance.post<loginResponse>("auth/login", data)
+  login = async (data: loginDTO) => {
+    return await this.instance.post<loginResponse>("auth/login", data).then((res) => res.data)
   }
 
-  async authMe() {
-    return await this.instance.post<loginResponse>("auth/me")
+  authMe = async () => {
+    return await this.instance.post<loginResponse>("auth/me").then((res) => res.data)
   }
 
-  async deleteAuthMe() {
-    return await this.instance.delete("auth/me")
+  deleteAuthMe = async () => {
+    return await this.instance.delete("auth/me").then((res) => res.data)
   }
 
-  async changeAuthMe(data: { name: string | undefined; avatar: string | undefined }) {
-    return await this.instance.put("auth/me", data)
+  changeAuthMe = async (data: changeAuthMeDTO) => {
+    return await this.instance.put<changeAuthMeResponse>("auth/me", data).then((res) => res.data)
   }
 }
 
 /*Types*/
+
+interface registerDTO {
+  data: { email: string; password: string }
+}
+interface loginDTO {
+  data: { email: string; password: string; rememberMe: boolean }
+}
+interface changeAuthMeDTO {
+  name: string | undefined
+  avatar: string | undefined
+}
+
+interface changeAuthMeResponse {
+  updatedUser: loginResponse
+  token: string
+  tokenDeathTime: number
+  error?: string
+}
 
 export interface loginResponse {
   _id: string
@@ -43,4 +58,8 @@ export interface loginResponse {
   token: string
   tokenDeathTime: number
   avatar: string
+}
+interface registerResponse {
+  addedUser: string
+  error?: string
 }

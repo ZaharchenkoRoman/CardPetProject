@@ -5,8 +5,7 @@ import CloseIcon from "@mui/icons-material/Close"
 import { CustomButton } from "@/src/components/customButtons/CustomButton"
 import Modal from "@mui/material/Modal"
 import * as React from "react"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { packsApi } from "@/src/api/packsApi"
+import { useDeletePackMutation } from "@/src/api/apiHooks/packs/useDeletePackMutation"
 
 interface DeleteModalProps {
   deleteModal: boolean
@@ -14,18 +13,10 @@ interface DeleteModalProps {
   packId: string
   packName: string
 }
-export default function DeleteModal(props: DeleteModalProps) {
+
+export default function DeletePackModal(props: DeleteModalProps) {
   const { deleteModal, closeDeleteModal, packId, packName } = props
-
-  const queryClient = useQueryClient()
-  const { mutate } = useMutation({
-    mutationFn: packsApi.deletePack,
-    onSuccess: () => {
-      closeDeleteModal()
-      return queryClient.invalidateQueries({ queryKey: ["packs"] })
-    },
-  })
-
+  const { mutate } = useDeletePackMutation()
   return (
     <Modal
       sx={{ fontFamily: "inherit" }}
@@ -57,7 +48,7 @@ export default function DeleteModal(props: DeleteModalProps) {
             sx={{ fontSize: "18px", fontFamily: "inherit", fontWeight: "500" }}
             component={"h1"}
           >
-            Delete {packName}
+            Delete pack {packName}?
           </Typography>
           <IconButton onClick={closeDeleteModal}>
             <CloseIcon />
@@ -76,7 +67,7 @@ export default function DeleteModal(props: DeleteModalProps) {
             fontWeight: "500px",
           }}
         >
-          Do you really want to remove {packName}?<p>All cards will be deleted.</p>
+          Do you really want to remove pack {packName}?<p>All cards will be deleted.</p>
         </Typography>
 
         <Stack
@@ -84,6 +75,7 @@ export default function DeleteModal(props: DeleteModalProps) {
           sx={{ mb: "47px", mx: "24px", justifyContent: "space-between" }}
         >
           <CustomButton
+            onClick={closeDeleteModal}
             sx={{
               height: "36px",
               width: "127px",

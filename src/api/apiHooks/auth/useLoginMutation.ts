@@ -14,10 +14,9 @@ export const UseLoginMutation = () => {
   } = useMutation({
     mutationFn: API.auth.login,
     onSuccess: (data) => {
-      dispatch(loginUser(data.data))
+      dispatch(loginUser(data))
       router.push("/profile")
     },
   })
-
   return { mutate, loginMutationError, isPending }
 }

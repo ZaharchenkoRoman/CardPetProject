@@ -6,43 +6,24 @@ import { AuthContainer } from "@/src/components/common/authContainers/AuthContai
 import { Avatar, Box, IconButton, InputAdornment, TextField, Typography } from "@mui/material"
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace"
 import LogoutIcon from "@mui/icons-material/Logout"
-import { useAppDispatch, useAppSelector } from "@/src/store/hooks"
+import { useAppSelector } from "@/src/store/hooks"
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline"
 import { ChangeEvent, useRef, useState } from "react"
 import DoneIcon from "@mui/icons-material/Done"
-import { useMutation } from "@tanstack/react-query"
-import { loginUser, logoutUser } from "@/src/store/authSlice"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { API } from "@/src/api/api"
+import { useDeleteAuthMeMutation } from "@/src/api/apiHooks/auth/useDeleteAuthMeMutation"
+import { useChangeAuthMeMutation } from "@/src/api/apiHooks/auth/useChangeAuthMeMutation"
 
 export const ProfilePage = () => {
   const [isEditing, setIsEditing] = useState<boolean>(false)
+
   const { avatar, email, name } = useAppSelector((state) => state.auth)
 
   const renameRef = useRef<HTMLInputElement>(null)
-  const dispatch = useAppDispatch()
-  const router = useRouter()
-  const { mutate } = useMutation({
-    mutationFn: API.auth.changeAuthMe,
-    onSuccess: (data) => {
-      dispatch(loginUser(data.data.updatedUser))
-    },
-  })
 
-  const submitRename = () => {
-    setIsEditing(false)
-    const newNickName = renameRef.current?.value
-    mutate({ name: newNickName, avatar: "" })
-  }
+  const { deleteUser } = useDeleteAuthMeMutation()
 
-  const { mutate: logOutUser } = useMutation({
-    mutationFn: API.auth.deleteAuthMe,
-    onSuccess: () => {
-      dispatch(logoutUser())
-      router.push("/login")
-    },
-  })
+  const { changeMe } = useChangeAuthMeMutation()
 
   const selectPhotoHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const pic = e.target.files?.[0]
@@ -51,9 +32,15 @@ export const ProfilePage = () => {
       reader.readAsDataURL(pic)
       reader.onloadend = () => {
         const profilePic = reader.result as string
-        mutate({ name, avatar: profilePic })
+        changeMe({ name, avatar: profilePic })
       }
     }
+  }
+
+  const submitRename = () => {
+    setIsEditing(false)
+    const newNickName = renameRef.current?.value as string
+    changeMe({ name: newNickName, avatar: "" })
   }
 
   return (
@@ -158,7 +145,7 @@ export const ProfilePage = () => {
             {email}
           </Typography>
           <CustomButton
-            onClick={() => logOutUser()}
+            onClick={() => deleteUser()}
             startIcon={<LogoutIcon />}
             sx={{
               height: "36px",

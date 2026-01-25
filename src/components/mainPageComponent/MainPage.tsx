@@ -16,33 +16,21 @@ import {
 } from "@mui/material"
 import CustomToggleButton from "@/src/components/customButtons/CustomToggleButton"
 import FilterAltOffIcon from "@mui/icons-material/FilterAltOff"
-import TableComponent from "@/src/components/tableComponent/TableComponent"
-import { loginUser } from "@/src/store/authSlice"
-import { useEffect, useState } from "react"
-import { useAppDispatch, useAppSelector } from "@/src/store/hooks"
-import { useMutation } from "@tanstack/react-query"
+import TableComponent from "@/src/components/mainPageComponent/TableComponent"
+import { useEffect } from "react"
+import { useAppSelector } from "@/src/store/hooks"
 import SearchIcon from "@mui/icons-material/Search"
-import usePaginatedData from "@/src/components/mainPage/usePaginatedData"
-import BasicModal from "@/src/components/mainPage/modal/BasicModal"
-import { API } from "@/src/api/api"
+import usePaginatedTable from "@/src/components/mainPageComponent/usePaginatedTable"
+import CreatePackModal from "@/src/components/mainPageComponent/CreatePackModal"
+import { useCustomModal } from "@/src/components/customHooks/useCustomModal"
+import { useAuthMeMutation } from "@/src/api/apiHooks/auth/useAuthMeMutation"
 
 export default function MainPage() {
-  const [open, setOpen] = useState(false)
-  const handleOpen = () => setOpen(true)
-  const handleClose = () => setOpen(false)
   const { page, itemsOnPageHandler, changePageHandler, totalPageCount, itemsOnPage, cardsPacks } =
-    usePaginatedData()
+    usePaginatedTable()
+  const { OpenModalHandler, ModalComponent } = useCustomModal()
   const { name } = useAppSelector((state) => state.auth)
-  const dispatch = useAppDispatch()
-
-  const { mutate } = useMutation({
-    mutationFn: API.auth.authMe,
-    onSuccess: (data) => {
-      dispatch(loginUser(data.data))
-    },
-    retry: 4,
-  })
-
+  const { mutate } = useAuthMeMutation()
   useEffect(() => {
     if (!name) {
       mutate()
@@ -62,7 +50,7 @@ export default function MainPage() {
           Packs list
         </Typography>
         <CustomButton
-          onClick={handleOpen}
+          onClick={OpenModalHandler}
           sx={{
             height: "36px",
             width: "175px",
@@ -71,10 +59,14 @@ export default function MainPage() {
           Add new pack
         </CustomButton>
       </Box>
-      <BasicModal
-        open={open}
-        handleClose={handleClose}
-      />
+      <ModalComponent>
+        {({ closeModalHandler, isOpenModal }) => (
+          <CreatePackModal
+            open={isOpenModal}
+            handleClose={closeModalHandler}
+          />
+        )}
+      </ModalComponent>
       <Grid
         sx={{ mt: "34px" }}
         container

@@ -16,14 +16,12 @@ import { Typography } from "@mui/material"
 const CreateNewPasswordPage = () => {
   const {
     formState: { errors },
-    handleSubmit,
     register,
   } = useForm<resetSchemaType>({
     resolver: zodResolver(schema),
     mode: "onBlur",
   })
 
-  const submitHandler = (data: resetSchemaType) => {}
   return (
     <AuthPageContainer>
       <AuthContainer>
@@ -31,7 +29,6 @@ const CreateNewPasswordPage = () => {
         <form
           className={"mx-8.25 mb-12 flex flex-col items-center justify-center"}
           noValidate
-          onSubmit={handleSubmit(submitHandler)}
         >
           <CustomInputWithEye
             {...register("password")}

@@ -4,21 +4,25 @@ import { TextField } from "@mui/material"
 import { CustomInputWithEye } from "@/src/components/customButtons/CustomInputWithEye"
 import { CustomButton } from "@/src/components/customButtons/CustomButton"
 import { useForm } from "react-hook-form"
-import { useMutation } from "@tanstack/react-query"
-
 import { schema, schemaType } from "@/src/components/authComponents/registrationPage/schema"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { AxiosError } from "axios"
 import { AlertComponent } from "@/src/components/common/AlertComponent"
 import { useEffect, useState } from "react"
-import { API } from "@/src/api/api"
+import { UseRegisterMutation } from "@/src/api/apiHooks/auth/useRegisterMutation"
 
 export const RegistrationForm = () => {
+  const { mutationError, mutate } = UseRegisterMutation()
   const [errorTimer, setErrorTimer] = useState<boolean>()
 
-  const { mutate, error: mutationError } = useMutation({
-    mutationFn: API.auth.register,
-  })
+  useEffect(() => {
+    const timeOut = setTimeout(() => {
+      setErrorTimer(false)
+
+      return clearTimeout(timeOut)
+    }, 2000)
+  }, [mutationError])
+
   const {
     handleSubmit,
     register,
@@ -35,15 +39,9 @@ export const RegistrationForm = () => {
         return mutationError.response.data.error
       }
     }
+    return "Operation failed"
   }
 
-  useEffect(() => {
-    const timeOut = setTimeout(() => {
-      setErrorTimer(false)
-
-      return clearTimeout(timeOut)
-    }, 2000)
-  }, [mutationError])
   return (
     <>
       <form

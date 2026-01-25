@@ -1,44 +1,38 @@
-import * as React from "react"
-import { useRef, useState } from "react"
 import Box from "@mui/material/Box"
-import Typography from "@mui/material/Typography"
-import Modal from "@mui/material/Modal"
 import { Checkbox, FormControlLabel, IconButton, Stack, TextField } from "@mui/material"
+import Typography from "@mui/material/Typography"
 import CloseIcon from "@mui/icons-material/Close"
 import { CustomButton } from "@/src/components/customButtons/CustomButton"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { packsApi } from "@/src/api/packsApi"
+import Modal from "@mui/material/Modal"
+import * as React from "react"
+import { useRef, useState } from "react"
+import { useEditPackMutation } from "@/src/api/apiHooks/packs/useEditPackMutation"
 
-interface ModalProps {
+interface Props {
+  onCloseHandler: () => void
   open: boolean
-  handleClose: () => void
+  packId: string
+  packName: string
 }
 
-export default function BasicModal(props: ModalProps) {
-  const queryClient = useQueryClient()
-
-  const nameRef = useRef<HTMLInputElement>(null)
-  const [isPrivate, setIsPrivate] = useState(false)
-  const { handleClose, open } = props
-  const { mutate } = useMutation({
-    mutationFn: packsApi.postPack,
-    onSuccess: () => {
-      handleClose()
-      return queryClient.invalidateQueries({ queryKey: ["packs"] })
-    },
-  })
-
-  const createPackHandler = () => {
-    const newPack = { name: nameRef.current?.value, private: isPrivate }
-    mutate(newPack)
+export const RenamePackModal = (props: Props) => {
+  const { onCloseHandler, open, packId: id, packName } = props
+  const titleRef = useRef<HTMLInputElement>(null)
+  const [isPrivate, setIsPrivate] = useState<boolean>(false)
+  const { mutate } = useEditPackMutation()
+  const editPackHandler = () => {
+    if (!titleRef.current) {
+      return null
+    }
+    const name = titleRef.current.value
+    mutate({ id, name })
   }
-
   return (
     <>
       <Modal
         sx={{ fontFamily: "inherit" }}
         open={open}
-        onClose={handleClose}
+        onClose={onCloseHandler}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
@@ -67,17 +61,17 @@ export default function BasicModal(props: ModalProps) {
               sx={{ fontSize: "18px", fontFamily: "inherit", fontWeight: "500" }}
               component={"h1"}
             >
-              Add new pack
+              Edit pack {packName}?
             </Typography>
-            <IconButton onClick={handleClose}>
+            <IconButton onClick={onCloseHandler}>
               <CloseIcon />
             </IconButton>
           </Stack>
           <TextField
-            inputRef={nameRef}
+            inputRef={titleRef}
             sx={{ marginTop: "35px", marginBottom: "30px", alignSelf: "center" }}
             variant={"standard"}
-            placeholder={"Pack Name"}
+            placeholder={"New pack name"}
             slotProps={{
               input: { style: { height: "48px", width: "347px", fontFamily: "inherit" } },
             }}
@@ -101,6 +95,7 @@ export default function BasicModal(props: ModalProps) {
             sx={{ mb: "47px", mx: "24px", mt: "35px", justifyContent: "space-between" }}
           >
             <CustomButton
+              onClick={onCloseHandler}
               sx={{
                 height: "36px",
                 width: "127px",
@@ -112,7 +107,7 @@ export default function BasicModal(props: ModalProps) {
               Cancel
             </CustomButton>
             <CustomButton
-              onClick={createPackHandler}
+              onClick={editPackHandler}
               sx={{ height: "36px", width: "127px", background: "var(--accent)", color: "white" }}
             >
               Save

@@ -1,45 +1,36 @@
-import Box from "@mui/material/Box"
-import { Checkbox, FormControlLabel, IconButton, Stack, TextField } from "@mui/material"
-import Typography from "@mui/material/Typography"
-import CloseIcon from "@mui/icons-material/Close"
-import { CustomButton } from "@/src/components/customButtons/CustomButton"
-import Modal from "@mui/material/Modal"
 import * as React from "react"
 import { useRef, useState } from "react"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { packsApi } from "@/src/api/packsApi"
+import Box from "@mui/material/Box"
+import Typography from "@mui/material/Typography"
+import Modal from "@mui/material/Modal"
+import { Checkbox, FormControlLabel, IconButton, Stack, TextField } from "@mui/material"
+import CloseIcon from "@mui/icons-material/Close"
+import { CustomButton } from "@/src/components/customButtons/CustomButton"
+import { useCreatePackMutation } from "@/src/api/apiHooks/packs/useCreatePackMutation"
 
 interface Props {
-  onCloseHandler: () => void
   open: boolean
-  packId: string
+  handleClose: () => void
 }
-export const RenamePackModal = (props: Props) => {
-  const { onCloseHandler, open, packId: id } = props
-  const titleRef = useRef<HTMLInputElement>(null)
-  const [isPrivate, setIsPrivate] = useState<boolean>(false)
-  const queryClient = useQueryClient()
-  const { mutate } = useMutation({
-    mutationFn: packsApi.editPack,
-    onSuccess: () => {
-      onCloseHandler()
-      return queryClient.invalidateQueries({ queryKey: ["packs"] })
-    },
-  })
 
-  const editPackHandler = () => {
-    if (!titleRef.current) {
-      return null
-    }
-    const name = titleRef.current.value
-    mutate({ id, name })
+export default function CreatePackModal(props: Props) {
+  const { handleClose, open } = props
+  const nameRef = useRef<HTMLInputElement>(null)
+  const [isPrivate, setIsPrivate] = useState(false)
+
+  const { mutate } = useCreatePackMutation()
+
+  const createPackHandler = () => {
+    const newPack = { name: nameRef.current?.value, private: isPrivate }
+    mutate(newPack)
   }
+
   return (
     <>
       <Modal
         sx={{ fontFamily: "inherit" }}
         open={open}
-        onClose={onCloseHandler}
+        onClose={handleClose}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
@@ -68,14 +59,14 @@ export const RenamePackModal = (props: Props) => {
               sx={{ fontSize: "18px", fontFamily: "inherit", fontWeight: "500" }}
               component={"h1"}
             >
-              Edit Pack
+              Add new pack?
             </Typography>
-            <IconButton onClick={onCloseHandler}>
+            <IconButton onClick={handleClose}>
               <CloseIcon />
             </IconButton>
           </Stack>
           <TextField
-            inputRef={titleRef}
+            inputRef={nameRef}
             sx={{ marginTop: "35px", marginBottom: "30px", alignSelf: "center" }}
             variant={"standard"}
             placeholder={"Pack Name"}
@@ -102,7 +93,6 @@ export const RenamePackModal = (props: Props) => {
             sx={{ mb: "47px", mx: "24px", mt: "35px", justifyContent: "space-between" }}
           >
             <CustomButton
-              onClick={onCloseHandler}
               sx={{
                 height: "36px",
                 width: "127px",
@@ -114,7 +104,7 @@ export const RenamePackModal = (props: Props) => {
               Cancel
             </CustomButton>
             <CustomButton
-              onClick={editPackHandler}
+              onClick={createPackHandler}
               sx={{ height: "36px", width: "127px", background: "var(--accent)", color: "white" }}
             >
               Save

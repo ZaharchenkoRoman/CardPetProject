@@ -1,32 +1,50 @@
-import { instance } from "@/src/api/api"
+import { AxiosInstance } from "axios"
 
-export const cardsApi = {
-  getCards: async (packId?: string | null) => {
-    return await instance.get<getCardsResponse>(`/cards/card?cardsPack_id=${packId}`)
-  },
-  createCards: async (data: { packId: string; question: string | null; answer: string | null }) => {
-    return await instance.post(`/cards/card`, {
-      card: {
-        cardsPack_id: data.packId,
-        question: data.question,
-        answer: data.answer,
-      },
-    })
-  },
-  deleteCard: async (packId: string) => {
-    return await instance.delete(`/cards/card?id=${packId}`)
-  },
-  putCard: async (cardId: string, question?: string) => {
-    return await instance.put(`/cards/card`, {
-      card: {
-        _id: cardId,
-        question,
-      },
-    })
-  },
+export class CardsApi {
+  constructor(private instance: AxiosInstance) {}
+
+  getCards = async (packId?: string | null) => {
+    return await this.instance
+      .get<getCardsResponse>(`/cards/card?cardsPack_id=${packId}`)
+      .then((res) => res.data)
+  }
+
+  createCards = async (data: createCardDTO) => {
+    return await this.instance
+      .post(`/cards/card`, {
+        card: {
+          cardsPack_id: data.packId,
+          question: data.question,
+          answer: data.answer,
+        },
+      })
+      .then((res) => res.data)
+  }
+
+  deleteCard = async (cardId: string | null) => {
+    return await this.instance.delete(`/cards/card?id=${cardId}`)
+  }
+
+  putCard = async (data: { cardId: string; question?: string; answer?: string }) => {
+    return await this.instance
+      .put(`/cards/card`, {
+        card: {
+          _id: data.cardId,
+          question: data.question,
+          answer: data.answer,
+        },
+      })
+      .then((res) => res.data)
+  }
 }
 
 /*Types*/
+
+interface createCardDTO {
+  packId: string
+  question: string | null
+  answer: string | null
+}
 
 export interface getCardsResponse {
   cards: cardsType[]

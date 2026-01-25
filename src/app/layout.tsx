@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import { Poppins } from "next/font/google"
 import "./globals.css"
 import { ReactNode } from "react"
-import Header from "@/src/components/common/header/Header"
+import Header from "@/src/components/common/Header"
 import { ProviderElement } from "@/src/components/provider/ProviderElement"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 

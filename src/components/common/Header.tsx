@@ -38,7 +38,7 @@ export default function Header() {
           </CustomButton>
         </Link>
       ) : (
-        <Link href={"/profile"}>
+        <Link href={"/"}>
           <Stack
             flexDirection={"row"}
             gap={"12px"}

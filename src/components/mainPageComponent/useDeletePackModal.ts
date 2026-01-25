@@ -1,6 +1,6 @@
 import { useState } from "react"
 
-export default function useDeleteModal() {
+export default function useDeletePackModal() {
   const [deleteModal, setDeleteModal] = useState<boolean>(false)
   const [nameDeletePack, setNameDeletePack] = useState<string>("")
   const [isDeletePack, setIsDeletePack] = useState<string>("")

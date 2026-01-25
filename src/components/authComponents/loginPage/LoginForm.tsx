@@ -13,6 +13,7 @@ import { UseLoginMutation } from "@/src/api/apiHooks/auth/useLoginMutation"
 
 export const LoginForm = () => {
   const [errorTimer, setErrorTimer] = useState<boolean>(true)
+  const { mutate, loginMutationError, isPending } = UseLoginMutation()
 
   const {
     handleSubmit,
@@ -23,11 +24,10 @@ export const LoginForm = () => {
     mode: "onBlur",
     resolver: zodResolver(loginSchema),
   })
-  const { mutate, loginMutationError, isPending } = UseLoginMutation()
 
   const submitHandler = (data: LoginSchemaType) => {
-    setErrorTimer(true)
     mutate(data)
+    setErrorTimer(true)
     reset()
   }
 
@@ -39,12 +39,14 @@ export const LoginForm = () => {
     }
     return "Login failed."
   }
+
   useEffect(() => {
     const timeout = setTimeout(() => {
       setErrorTimer(false)
       return clearTimeout(timeout)
     }, 3000)
   }, [loginMutationError])
+
   return (
     <>
       <form

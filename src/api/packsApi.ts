@@ -1,21 +1,26 @@
-import { instance } from "@/src/api/api"
+import { AxiosInstance } from "axios"
 
-export const packsApi = {
-  postPack: async (data: dataType) => {
-    return await instance.post("/cards/pack", { cardsPack: data })
-  },
+export class PacksApi {
+  constructor(private instance: AxiosInstance) {}
 
-  getPacks: async (page: string, pageCount: string) => {
-    return await instance.get<getPacksResponse>(`/cards/pack?page=${page}&pageCount=${pageCount}`)
-  },
-  deletePack: async (id: string) => {
-    return await instance.delete(`cards/pack/?id=${id}`)
-  },
-  editPack: async (cardsPack: { id: string; name: string }) => {
-    return await instance.put(`cards/pack`, {
-      cardsPack: { _id: cardsPack.id, name: cardsPack.name },
-    })
-  },
+  postPack = async (data: dataType) => {
+    return await this.instance.post("/cards/pack", { cardsPack: data }).then((res) => res.data)
+  }
+  getPacks = async (page: string, pageCount: string) => {
+    return await this.instance
+      .get<getPacksResponse>(`/cards/pack?page=${page}&pageCount=${pageCount}`)
+      .then((res) => res.data)
+  }
+  deletePack = async (id: string) => {
+    return await this.instance.delete(`cards/pack/?id=${id}`).then((res) => res.data)
+  }
+  editPack = async (cardsPack: { id: string; name: string }) => {
+    return await this.instance
+      .put(`cards/pack`, {
+        cardsPack: { _id: cardsPack.id, name: cardsPack.name },
+      })
+      .then((res) => res.data)
+  }
 }
 
 /*Types*/
