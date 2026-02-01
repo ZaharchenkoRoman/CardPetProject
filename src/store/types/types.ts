@@ -10,4 +10,5 @@ export interface initialStateType {
   verified: boolean
   rememberMe: boolean
   error?: string
+  token: string
 }

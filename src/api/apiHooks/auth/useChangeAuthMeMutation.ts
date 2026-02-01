@@ -5,7 +5,7 @@ import { loginUser } from "@/src/store/authSlice"
 
 export const useChangeAuthMeMutation = () => {
   const dispatch = useAppDispatch()
-  const { mutate: changeMe } = useMutation({
+  const { mutate: changeMe, isPending } = useMutation({
     mutationFn: API.auth.changeAuthMe,
     onSuccess: (data) => {
       dispatch(loginUser(data.updatedUser))
@@ -14,5 +14,6 @@ export const useChangeAuthMeMutation = () => {
 
   return {
     changeMe,
+    isPending,
   }
 }

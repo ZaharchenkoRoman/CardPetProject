@@ -12,9 +12,7 @@ interface Props {
 }
 export const DeleteCardModal = (props: Props) => {
   const { closeModalHandler, isOpenModal, cardId } = props
-
   const { deleteCardMutation } = useDeleteCardMutation()
-
   const submitHandler = () => {
     deleteCardMutation(cardId)
     closeModalHandler()

@@ -1,28 +1,34 @@
 import * as React from "react"
-import { useRef, useState } from "react"
 import Box from "@mui/material/Box"
 import Typography from "@mui/material/Typography"
 import Modal from "@mui/material/Modal"
 import { Checkbox, FormControlLabel, IconButton, Stack, TextField } from "@mui/material"
 import CloseIcon from "@mui/icons-material/Close"
 import { CustomButton } from "@/src/components/customButtons/CustomButton"
-import { useCreatePackMutation } from "@/src/api/apiHooks/packs/useCreatePackMutation"
-
+import { useCreatePackHandler } from "@/src/components/mainPageComponent/useCreatePackHandler"
+import { Loader } from "@/src/components/common/Loader"
+import Image from "next/image"
+import { ChangeEvent, useState } from "react"
 interface Props {
   open: boolean
   handleClose: () => void
 }
 
 export default function CreatePackModal(props: Props) {
+  const [cover, setCover] = useState<string | null>(null)
   const { handleClose, open } = props
-  const nameRef = useRef<HTMLInputElement>(null)
-  const [isPrivate, setIsPrivate] = useState(false)
+  const { createPackHandler, setIsPrivate, isPrivate, nameRef, isPending, isSuccess } =
+    useCreatePackHandler(cover, handleClose)
 
-  const { mutate } = useCreatePackMutation()
-
-  const createPackHandler = () => {
-    const newPack = { name: nameRef.current?.value, private: isPrivate }
-    mutate(newPack)
+  const changeCoverHandler = (e: ChangeEvent<HTMLInputElement>) => {
+    const cover = e.target.files?.[0]
+    if (cover) {
+      const reader = new FileReader()
+      reader.readAsDataURL(cover)
+      reader.onloadend = () => {
+        setCover(reader.result as string)
+      }
+    }
   }
 
   return (
@@ -47,6 +53,7 @@ export default function CreatePackModal(props: Props) {
             boxShadow: 24,
           }}
         >
+          {isPending && <Loader />}
           <Stack
             borderBottom={"1px solid var(--secondary)"}
             flexDirection={"row"}
@@ -65,19 +72,51 @@ export default function CreatePackModal(props: Props) {
               <CloseIcon />
             </IconButton>
           </Stack>
+          <Box
+            display={"flex"}
+            mt={"33px"}
+            flexDirection={"row"}
+          >
+            <span className={"ml-6 pr-45"}>Cover</span>
+            <label className={"mr-6 cursor-pointer hover:text-(--accent)"}>
+              Change Cover
+              <TextField
+                onChange={changeCoverHandler}
+                type={"file"}
+                hidden
+              ></TextField>
+            </label>
+          </Box>
+          <Image
+            className={"mt-2.5 justify-center self-center"}
+            src={cover || "/pics/cover.svg"}
+            alt={"cover"}
+            height={200}
+            width={350}
+          ></Image>
           <TextField
             inputRef={nameRef}
             sx={{ marginTop: "35px", marginBottom: "30px", alignSelf: "center" }}
             variant={"standard"}
             placeholder={"Pack Name"}
             slotProps={{
-              input: { style: { height: "48px", width: "347px", fontFamily: "inherit" } },
+              input: {
+                style: {
+                  height: "48px",
+                  width: "347px",
+                  fontFamily: "inherit",
+                },
+              },
             }}
           ></TextField>
 
           <FormControlLabel
             slotProps={{
-              typography: { fontFamily: "inherit", fontWeight: "500", fontSize: "16px" },
+              typography: {
+                fontFamily: "inherit",
+                fontWeight: "500",
+                fontSize: "16px",
+              },
             }}
             sx={{ marginLeft: "24px", "&:hover": { color: "var(--accent)" } }}
             label={"Private pack"}
@@ -90,7 +129,12 @@ export default function CreatePackModal(props: Props) {
           ></FormControlLabel>
           <Stack
             flexDirection="row"
-            sx={{ mb: "47px", mx: "24px", mt: "35px", justifyContent: "space-between" }}
+            sx={{
+              mb: "47px",
+              mx: "24px",
+              mt: "35px",
+              justifyContent: "space-between",
+            }}
           >
             <CustomButton
               sx={{
@@ -105,7 +149,12 @@ export default function CreatePackModal(props: Props) {
             </CustomButton>
             <CustomButton
               onClick={createPackHandler}
-              sx={{ height: "36px", width: "127px", background: "var(--accent)", color: "white" }}
+              sx={{
+                height: "36px",
+                width: "127px",
+                background: "var(--accent)",
+                color: "white",
+              }}
             >
               Save
             </CustomButton>

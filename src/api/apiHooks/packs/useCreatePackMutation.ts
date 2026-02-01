@@ -3,7 +3,7 @@ import { API } from "@/src/api/api"
 
 export const useCreatePackMutation = () => {
   const queryClient = useQueryClient()
-  const { mutate } = useMutation({
+  const { mutate, isPending, isSuccess } = useMutation({
     mutationFn: API.packs.postPack,
     onSuccess: () => {
       return queryClient.invalidateQueries({ queryKey: ["packs"] })
@@ -11,5 +11,7 @@ export const useCreatePackMutation = () => {
   })
   return {
     mutate,
+    isPending,
+    isSuccess,
   }
 }

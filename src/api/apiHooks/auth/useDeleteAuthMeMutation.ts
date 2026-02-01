@@ -7,13 +7,13 @@ import { useRouter } from "next/navigation"
 export const useDeleteAuthMeMutation = () => {
   const router = useRouter()
   const dispatch = useAppDispatch()
-  const { mutate: deleteUser } = useMutation({
+  const { mutate: deleteUser, isPending: logoutPending } = useMutation({
     mutationFn: API.auth.deleteAuthMe,
     onSuccess: () => {
-      dispatch(logoutUser())
       router.push("/login")
+      dispatch(logoutUser())
     },
   })
 
-  return { deleteUser }
+  return { deleteUser, logoutPending }
 }

@@ -5,18 +5,20 @@ import CloseIcon from "@mui/icons-material/Close"
 import { CustomButton } from "@/src/components/customButtons/CustomButton"
 import Modal from "@mui/material/Modal"
 import * as React from "react"
-import { useDeletePackMutation } from "@/src/api/apiHooks/packs/useDeletePackMutation"
+import { useDeletePackHandler } from "@/src/components/mainPageComponent/useDeletePackHandler"
+import { ParamValue } from "next/dist/server/request/params"
 
 interface DeleteModalProps {
   deleteModal: boolean
   closeDeleteModal: () => void
-  packId: string
-  packName: string
+  packId: string | null
+  packName: string | null | ParamValue
 }
 
 export default function DeletePackModal(props: DeleteModalProps) {
   const { deleteModal, closeDeleteModal, packId, packName } = props
-  const { mutate } = useDeletePackMutation()
+  const { submitHandler } = useDeletePackHandler({ packId, closeDeleteModal })
+
   return (
     <Modal
       sx={{ fontFamily: "inherit" }}
@@ -87,7 +89,7 @@ export default function DeletePackModal(props: DeleteModalProps) {
             Cancel
           </CustomButton>
           <CustomButton
-            onClick={() => mutate(packId)}
+            onClick={submitHandler}
             sx={{
               height: "36px",
               width: "127px",

@@ -25,13 +25,19 @@ export class CardsApi {
     return await this.instance.delete(`/cards/card?id=${cardId}`)
   }
 
-  putCard = async (data: { cardId: string; question?: string; answer?: string }) => {
+  putCard = async (data: {
+    cardId: string
+    question?: string
+    answer?: string
+    grade?: number | null
+  }) => {
     return await this.instance
       .put(`/cards/card`, {
         card: {
           _id: data.cardId,
           question: data.question,
           answer: data.answer,
+          grade: data.grade?.toString(),
         },
       })
       .then((res) => res.data)

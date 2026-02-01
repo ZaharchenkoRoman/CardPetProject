@@ -2,12 +2,14 @@
 
 import ToggleButton from "@mui/material/ToggleButton"
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup"
-import { MouseEvent, useState } from "react"
-
-export default function CustomToggleButton() {
-  const [alignment, setAlignment] = useState<string | null>("left")
-
-  const handleAlignment = (event: MouseEvent<HTMLElement>, newAlignment: string | null) => {
+import { MouseEvent } from "react"
+interface Props {
+  alignment: "All" | "My" | null
+  setAlignment: (newAlignment: "All" | "My" | null) => void
+}
+export default function CustomToggleButton(props: Props) {
+  const { alignment, setAlignment } = props
+  const handleAlignment = (event: MouseEvent<HTMLElement>, newAlignment: "All" | "My" | null) => {
     setAlignment(newAlignment)
   }
 
@@ -20,17 +22,31 @@ export default function CustomToggleButton() {
       aria-label="text alignment"
     >
       <ToggleButton
-        value="left"
+        disableRipple
+        value="My"
         aria-label="left aligned"
-        sx={{ flex: 1 }}
+        sx={{
+          flex: 1,
+          "&.Mui-selected": {
+            color: "white",
+            backgroundColor: "var(--accent)",
+          },
+        }}
       >
         My
       </ToggleButton>
 
       <ToggleButton
-        value="right"
+        disableRipple
+        value="All"
         aria-label="right aligned"
-        sx={{ flex: 1 }}
+        sx={{
+          flex: 1,
+          "&.Mui-selected": {
+            color: "white",
+            backgroundColor: "var(--accent)",
+          },
+        }}
       >
         All
       </ToggleButton>

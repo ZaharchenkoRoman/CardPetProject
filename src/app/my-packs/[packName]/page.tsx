@@ -1,5 +1,5 @@
-import UsersPacksComponent from "@/src/components/usersPacksComponent/UsersPacksComponent"
+import UsersPackComponent from "@/src/components/usersCardsComponent/UsersPackComponent"
 
 export default function Page() {
-  return <UsersPacksComponent />
+  return <UsersPackComponent />
 }

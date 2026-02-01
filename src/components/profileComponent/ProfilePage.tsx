@@ -6,47 +6,33 @@ import { AuthContainer } from "@/src/components/common/authContainers/AuthContai
 import { Avatar, Box, IconButton, InputAdornment, TextField, Typography } from "@mui/material"
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace"
 import LogoutIcon from "@mui/icons-material/Logout"
-import { useAppSelector } from "@/src/store/hooks"
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline"
-import { ChangeEvent, useRef, useState } from "react"
 import DoneIcon from "@mui/icons-material/Done"
 import Link from "next/link"
 import { useDeleteAuthMeMutation } from "@/src/api/apiHooks/auth/useDeleteAuthMeMutation"
-import { useChangeAuthMeMutation } from "@/src/api/apiHooks/auth/useChangeAuthMeMutation"
+import { Loader } from "@/src/components/common/Loader"
+import { useChangeMeHandler } from "@/src/components/profileComponent/useChangeMeHandler"
 
-export const ProfilePage = () => {
-  const [isEditing, setIsEditing] = useState<boolean>(false)
+export default function ProfilePage() {
+  const { deleteUser, logoutPending } = useDeleteAuthMeMutation()
 
-  const { avatar, email, name } = useAppSelector((state) => state.auth)
-
-  const renameRef = useRef<HTMLInputElement>(null)
-
-  const { deleteUser } = useDeleteAuthMeMutation()
-
-  const { changeMe } = useChangeAuthMeMutation()
-
-  const selectPhotoHandler = (e: ChangeEvent<HTMLInputElement>) => {
-    const pic = e.target.files?.[0]
-    if (pic) {
-      const reader = new FileReader()
-      reader.readAsDataURL(pic)
-      reader.onloadend = () => {
-        const profilePic = reader.result as string
-        changeMe({ name, avatar: profilePic })
-      }
-    }
-  }
-
-  const submitRename = () => {
-    setIsEditing(false)
-    const newNickName = renameRef.current?.value as string
-    changeMe({ name: newNickName, avatar: "" })
-  }
+  const {
+    selectPhotoHandler,
+    avatar,
+    email,
+    isEditing,
+    setIsEditing,
+    isPending,
+    submitRename,
+    renameRef,
+    name,
+  } = useChangeMeHandler()
 
   return (
     <>
       <Link href={"/"}>
         <Typography
+          component="div"
           sx={{
             justifyContent: "center",
             alignItems: "center",
@@ -72,7 +58,7 @@ export const ProfilePage = () => {
           >
             <Avatar
               sx={{ height: "96px", width: "96px" }}
-              src={avatar || "/pics/person.jpg"}
+              src={avatar}
             ></Avatar>
             <label className={"cursor-pointer"}>
               <input
@@ -118,6 +104,7 @@ export const ProfilePage = () => {
             </TextField>
           ) : (
             <Box
+              position={"relative"}
               paddingLeft={"40px"}
               marginTop={"17px"}
               gap={1}
@@ -126,7 +113,12 @@ export const ProfilePage = () => {
               display="flex"
               minHeight={"46px"}
             >
-              <Typography sx={{ fontFamily: "inherit" }}>{name}</Typography>
+              <Typography
+                component={"div"}
+                sx={{ fontFamily: "inherit" }}
+              >
+                {isPending ? <Loader /> : name}
+              </Typography>
               <IconButton
                 size={"small"}
                 edge={"end"}
@@ -159,6 +151,7 @@ export const ProfilePage = () => {
           >
             Log out
           </CustomButton>
+          {logoutPending && <Loader />}
         </AuthContainer>
       </AuthPageContainer>
     </>

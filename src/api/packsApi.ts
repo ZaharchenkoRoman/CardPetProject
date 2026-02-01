@@ -6,15 +6,28 @@ export class PacksApi {
   postPack = async (data: dataType) => {
     return await this.instance.post("/cards/pack", { cardsPack: data }).then((res) => res.data)
   }
-  getPacks = async (page: string, pageCount: string) => {
+
+  getPacks = async ({
+    page,
+    itemsOnPage,
+    packName,
+    min,
+    max,
+    user_id,
+    signal,
+  }: getPacksPropsSignal) => {
     return await this.instance
-      .get<getPacksResponse>(`/cards/pack?page=${page}&pageCount=${pageCount}`)
+      .get<getPacksResponse>(`/cards/pack`, {
+        params: { page, pageCount: itemsOnPage, packName, min, max, user_id },
+        signal: signal,
+      })
       .then((res) => res.data)
   }
-  deletePack = async (id: string) => {
+
+  deletePack = async (id: string | null) => {
     return await this.instance.delete(`cards/pack/?id=${id}`).then((res) => res.data)
   }
-  editPack = async (cardsPack: { id: string; name: string }) => {
+  editPack = async (cardsPack: { id: string | null; name: string }) => {
     return await this.instance
       .put(`cards/pack`, {
         cardsPack: { _id: cardsPack.id, name: cardsPack.name },
@@ -31,8 +44,8 @@ export interface dataType {
   grade?: string
   shots?: string
   rating?: string
-  deckCover?: string
-  private: boolean
+  deckCover?: string | null
+  private?: boolean
   type?: string
 }
 export interface packType {
@@ -51,6 +64,7 @@ export interface packType {
   updated: string
   more_id: string
   __v: number
+  deckCover: string
 }
 
 interface getPacksResponse {
@@ -62,4 +76,16 @@ interface getPacksResponse {
   maxCardsCount: number
   token: string
   tokenDeathTime: number
+}
+
+interface getPacksProps {
+  page?: string
+  itemsOnPage?: string
+  packName: string | null
+  min?: number
+  max?: number
+  user_id?: string
+}
+interface getPacksPropsSignal extends getPacksProps {
+  signal?: AbortSignal
 }

@@ -5,28 +5,23 @@ import CloseIcon from "@mui/icons-material/Close"
 import { CustomButton } from "@/src/components/customButtons/CustomButton"
 import Modal from "@mui/material/Modal"
 import * as React from "react"
-import { useRef, useState } from "react"
-import { useEditPackMutation } from "@/src/api/apiHooks/packs/useEditPackMutation"
+import { useRenamePackModal } from "@/src/components/mainPageComponent/useRenamePackModal"
+import { ParamValue } from "next/dist/server/request/params"
 
 interface Props {
   onCloseHandler: () => void
   open: boolean
-  packId: string
-  packName: string
+  packId: string | null
+  packName?: ParamValue
 }
 
 export const RenamePackModal = (props: Props) => {
-  const { onCloseHandler, open, packId: id, packName } = props
-  const titleRef = useRef<HTMLInputElement>(null)
-  const [isPrivate, setIsPrivate] = useState<boolean>(false)
-  const { mutate } = useEditPackMutation()
-  const editPackHandler = () => {
-    if (!titleRef.current) {
-      return null
-    }
-    const name = titleRef.current.value
-    mutate({ id, name })
-  }
+  const { onCloseHandler, open, packId, packName } = props
+  const { editPackHandler, setIsPrivate, isPrivate, titleRef } = useRenamePackModal({
+    packId,
+    onCloseHandler,
+    packName,
+  })
   return (
     <>
       <Modal

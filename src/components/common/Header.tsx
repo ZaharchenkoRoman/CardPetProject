@@ -4,9 +4,11 @@ import { CustomButton } from "@/src/components/customButtons/CustomButton"
 import Link from "next/link"
 import { useAppSelector } from "@/src/store/hooks"
 import { Avatar, Box, Stack, Typography } from "@mui/material"
+import { useAuthMe } from "@/src/components/mainPageComponent/useAuthMe"
 
 export default function Header() {
   const { avatar, name } = useAppSelector((state) => state.auth)
+  useAuthMe()
 
   return (
     <Box
@@ -21,7 +23,7 @@ export default function Header() {
           alt={"Logo"}
           height={40}
           width={40}
-          priority={true}
+          loading={"eager"}
         ></Image>
       </Link>
       {!name ? (
@@ -38,7 +40,7 @@ export default function Header() {
           </CustomButton>
         </Link>
       ) : (
-        <Link href={"/"}>
+        <Link href={"/profile"}>
           <Stack
             flexDirection={"row"}
             gap={"12px"}
@@ -59,7 +61,7 @@ export default function Header() {
             </Typography>
             <Avatar
               sx={{ height: "36" }}
-              src={avatar || "/pics/person.png"}
+              src={avatar}
             ></Avatar>
           </Stack>
         </Link>

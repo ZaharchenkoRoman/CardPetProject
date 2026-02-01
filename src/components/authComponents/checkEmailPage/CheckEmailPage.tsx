@@ -13,7 +13,7 @@ export default function CheckEmailPage() {
         <Image
           className={"mt-7.25"}
           alt={"mail"}
-          src={"/pics/emailIcon.png"}
+          src={"/pics/emailIcon.webp"}
           width={108}
           height={108}
         ></Image>

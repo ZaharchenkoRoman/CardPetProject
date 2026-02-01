@@ -16,29 +16,43 @@ import {
 } from "@mui/material"
 import CustomToggleButton from "@/src/components/customButtons/CustomToggleButton"
 import FilterAltOffIcon from "@mui/icons-material/FilterAltOff"
-import TableComponent from "@/src/components/mainPageComponent/TableComponent"
-import { useEffect } from "react"
-import { useAppSelector } from "@/src/store/hooks"
+import MainTableComponent from "@/src/components/mainPageComponent/MainTableComponent"
 import SearchIcon from "@mui/icons-material/Search"
-import usePaginatedTable from "@/src/components/mainPageComponent/usePaginatedTable"
 import CreatePackModal from "@/src/components/mainPageComponent/CreatePackModal"
 import { useCustomModal } from "@/src/components/customHooks/useCustomModal"
-import { useAuthMeMutation } from "@/src/api/apiHooks/auth/useAuthMeMutation"
+import { useAppSelector } from "@/src/store/hooks"
+import { useSearch } from "@/src/components/mainPageComponent/useSearch"
+import { Loader } from "@/src/components/common/Loader"
+import { useGetPacksWithDebounce } from "@/src/components/customHooks/useGetPacksWithDebounce"
 
 export default function MainPage() {
-  const { page, itemsOnPageHandler, changePageHandler, totalPageCount, itemsOnPage, cardsPacks } =
-    usePaginatedTable()
+  const { searchValue, searchHandler, setSearchValue } = useSearch()
   const { OpenModalHandler, ModalComponent } = useCustomModal()
-  const { name } = useAppSelector((state) => state.auth)
-  const { mutate } = useAuthMeMutation()
-  useEffect(() => {
-    if (!name) {
-      mutate()
-    }
-  }, [mutate, name])
+  const { _id } = useAppSelector((state) => state.auth)
 
+  const clearAllFiltersHandler = () => {
+    setAlignment(null)
+    setSearchValue("")
+    setMinPacks(0)
+  }
+
+  const {
+    setMinPacks,
+    cardsPacks,
+    itemsOnPage,
+    page,
+    itemsOnPageHandler,
+    changePageHandler,
+    totalPageCount,
+    setAlignment,
+    alignment,
+    changeMinPacks,
+    minPacks,
+  } = useGetPacksWithDebounce(searchValue)
+  if (!cardsPacks) return null
+  if (!_id) return <Loader />
   return (
-    <Stack sx={{ px: "136px" }}>
+    <Stack sx={{ px: "136px", pb: "30px" }}>
       <Box
         display="flex"
         alignItems="center"
@@ -46,7 +60,13 @@ export default function MainPage() {
         flexDirection={"row"}
         justifyContent={"space-between"}
       >
-        <Typography sx={{ fontFamily: "inherit", fontSize: "22px", fontWeight: "600" }}>
+        <Typography
+          sx={{
+            fontFamily: "inherit",
+            fontSize: "22px",
+            fontWeight: "600",
+          }}
+        >
           Packs list
         </Typography>
         <CustomButton
@@ -59,14 +79,6 @@ export default function MainPage() {
           Add new pack
         </CustomButton>
       </Box>
-      <ModalComponent>
-        {({ closeModalHandler, isOpenModal }) => (
-          <CreatePackModal
-            open={isOpenModal}
-            handleClose={closeModalHandler}
-          />
-        )}
-      </ModalComponent>
       <Grid
         sx={{ mt: "34px" }}
         container
@@ -75,9 +87,11 @@ export default function MainPage() {
       >
         <Grid size={4}>Search</Grid>
         <Grid size={4}>Show packs cards</Grid>
-        <Grid size={4}>Number of cards</Grid>
+        <Grid size={4}>Min number of cards in pack</Grid>
         <Grid size={4}>
           <TextField
+            value={searchValue}
+            onChange={searchHandler}
             variant="outlined"
             slotProps={{
               input: {
@@ -94,67 +108,91 @@ export default function MainPage() {
           ></TextField>
         </Grid>
         <Grid size={4}>
-          <CustomToggleButton />
+          <CustomToggleButton
+            alignment={alignment}
+            setAlignment={setAlignment}
+          />
         </Grid>
-        <Grid size={3}>
+        <Grid size={2}>
           <Stack
             alignItems={"center"}
             columnGap={"12px"}
             flexDirection={"row"}
           >
-            <TextField
-              slotProps={{
-                input: {
-                  style: { height: "36px", width: "36px" },
-                },
-              }}
-            ></TextField>
-            <Slider sx={{ height: "16px", width: "155px" }}></Slider>
-            <TextField
-              slotProps={{
-                input: {
-                  style: { height: "36px", width: "36px" },
-                },
-              }}
-            ></TextField>
+            <Box
+              alignItems={"center"}
+              justifyContent={"center"}
+              flexDirection={"row"}
+              display="flex"
+              width={"94%"}
+              gap={"20px"}
+            >
+              <Slider
+                value={minPacks}
+                min={0}
+                max={99}
+                sx={{ ml: "10px" }}
+              ></Slider>
+              <TextField
+                value={minPacks}
+                onChange={changeMinPacks}
+                sx={{ width: "67px" }}
+                size={"small"}
+              ></TextField>
+            </Box>
           </Stack>
         </Grid>
-        <Grid size={1}>
-          <IconButton>
+        <Grid size={2}>
+          <IconButton onClick={clearAllFiltersHandler}>
             <FilterAltOffIcon />
           </IconButton>
         </Grid>
       </Grid>
-      <TableComponent
+      <MainTableComponent
         sx={{ mt: "24px" }}
         cardPacks={cardsPacks}
       />
-      <Stack
-        flexDirection={"row"}
-        mt={"36px"}
-        alignItems={"center"}
-        justifyContent={"start"}
-      >
-        <Pagination
-          count={totalPageCount}
-          page={page}
-          shape="rounded"
-          onChange={changePageHandler}
-        />
-        <Typography component={"div"}>
-          Show
-          <Select
-            size={"small"}
-            onChange={itemsOnPageHandler}
-            value={itemsOnPage}
+      {cardsPacks.length > 0 ? (
+        <Stack
+          flexDirection={"row"}
+          mt={"36px"}
+          alignItems={"center"}
+          justifyContent={"start"}
+        >
+          <Pagination
+            sx={{ mr: "30px" }}
+            count={totalPageCount}
+            page={page}
+            shape="rounded"
+            onChange={changePageHandler}
+          />
+          <Typography
+            component={"div"}
+            sx={{ fontFamily: "inherit" }}
           >
-            <MenuItem value={5}>Five</MenuItem>
-            <MenuItem value={10}>Ten</MenuItem>
-            <MenuItem value={15}>Fifty</MenuItem>
-          </Select>
-          Cards per Page
-        </Typography>
-      </Stack>
+            Show
+            <Select
+              sx={{ mx: "10px", width: "70px", height: "24px" }}
+              size={"small"}
+              onChange={itemsOnPageHandler}
+              value={itemsOnPage}
+            >
+              <MenuItem value={5}>5</MenuItem>
+              <MenuItem value={10}>10</MenuItem>
+              <MenuItem value={15}>15</MenuItem>
+            </Select>
+            Cards per Page
+          </Typography>
+        </Stack>
+      ) : null}
+      <ModalComponent>
+        {({ closeModalHandler, isOpenModal }) => (
+          <CreatePackModal
+            open={isOpenModal}
+            handleClose={closeModalHandler}
+          />
+        )}
+      </ModalComponent>
     </Stack>
   )
 }

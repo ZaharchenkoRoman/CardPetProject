@@ -5,6 +5,8 @@ import {
   Container,
   IconButton,
   InputAdornment,
+  Paper,
+  Rating,
   Stack,
   Table,
   TableBody,
@@ -17,7 +19,7 @@ import {
 import Link from "next/link"
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace"
 import { CustomButton } from "@/src/components/customButtons/CustomButton"
-import { AddNewCardModal } from "@/src/components/usersPacksComponent/AddNewCardModal"
+import { AddNewCardModal } from "@/src/components/usersCardsComponent/modals/AddNewCardModal"
 import SearchIcon from "@mui/icons-material/Search"
 import MoreVertIcon from "@mui/icons-material/MoreVert"
 import useCustomPopover from "@/src/components/customButtons/CustomPopover"
@@ -26,19 +28,31 @@ import DeleteIcon from "@mui/icons-material/Delete"
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline"
 import { useGetCardsQuery } from "@/src/api/apiHooks/cards/useGetCardsQuery"
 import { useCustomModal } from "@/src/components/customHooks/useCustomModal"
-import { EditCardModal } from "@/src/components/usersPacksComponent/EditCardModal"
+import { EditCardModal } from "@/src/components/usersCardsComponent/modals/EditCardModal"
 import { useState } from "react"
-import { DeleteCardModal } from "@/src/components/usersPacksComponent/deleteCardModal"
+import { DeleteCardModal } from "@/src/components/usersCardsComponent/modals/DeleteCardModal"
+import { RenamePackModal } from "@/src/components/mainPageComponent/RenamePackModal"
+import DeletePackModal from "@/src/components/mainPageComponent/DeletePackModal"
+import TableContainer from "@mui/material/TableContainer"
+import { useUpdateCardMutation } from "@/src/api/apiHooks/cards/useUpdateCardMutation"
+import SchoolIcon from "@mui/icons-material/School"
+import { useAppSelector } from "@/src/store/hooks"
 
-export default function UsersPacksComponent() {
+export default function UsersPackComponent() {
   const [cardId, setCardId] = useState<string | null>(null)
-  const addCardModal = useCustomModal()
+  const { decodedPackName, data, packId } = useGetCardsQuery()
+  const { CustomPopoverElement, setAnchor } = useCustomPopover()
   const changeCardContentModal = useCustomModal()
   const deleteCardModal = useCustomModal()
-  const { CustomPopoverElement, setAnchor } = useCustomPopover()
-  const { packName, data } = useGetCardsQuery()
-  if (!data) return null
-  const cards = data.cards
+  const deletePackModal = useCustomModal()
+  const editPackModal = useCustomModal()
+  const addCardModal = useCustomModal()
+  const { _id } = useAppSelector((state) => state.auth)
+  const { editCardMutation } = useUpdateCardMutation()
+  const changeRatingHandler = (id: string, value: number | null) => {
+    editCardMutation({ cardId: id, grade: value })
+  }
+
   const ChangeCardHandler = (cardId: string) => {
     setCardId(cardId)
     changeCardContentModal.OpenModalHandler()
@@ -47,6 +61,9 @@ export default function UsersPacksComponent() {
     setCardId(id)
     deleteCardModal.OpenModalHandler()
   }
+  if (!data) return null
+  const cards = data.cards
+
   return (
     <Container maxWidth={false}>
       <Stack
@@ -72,7 +89,7 @@ export default function UsersPacksComponent() {
           </Typography>
         </Link>
         <Typography sx={{ fontSize: "22px", mt: "27px", fontFamily: "inherit", fontWeight: 600 }}>
-          {packName}
+          {decodedPackName}
           <IconButton
             size={"small"}
             sx={{ ml: "8px", border: "1px solid grey" }}
@@ -88,17 +105,23 @@ export default function UsersPacksComponent() {
             display={"flex"}
             flexDirection={"column"}
           >
-            <IconButton disableRipple>
+            <IconButton
+              disableRipple
+              onClick={editPackModal.OpenModalHandler}
+            >
               <EditIcon />
               <p className={"ml-2"}>Edit</p>
             </IconButton>
-            <IconButton disableRipple>
+            <IconButton
+              disableRipple
+              onClick={deletePackModal.OpenModalHandler}
+            >
               <DeleteIcon />
               <p className={"ml-2"}>Delete</p>
             </IconButton>
           </Box>
         </CustomPopoverElement>
-        {cards ? (
+        {cards.length > 0 ? (
           <>
             <Box
               sx={{ mt: "28px" }}
@@ -108,6 +131,7 @@ export default function UsersPacksComponent() {
               <label>
                 <p>Search</p>
                 <TextField
+                  size={"small"}
                   slotProps={{
                     input: {
                       startAdornment: (
@@ -126,37 +150,58 @@ export default function UsersPacksComponent() {
                 Add new card
               </CustomButton>
             </Box>
-            <Table sx={{ mt: "24px" }}>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Question</TableCell>
-                  <TableCell>Answer</TableCell>
-                  <TableCell>Last Updated</TableCell>
-                  <TableCell>Grade</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {cards.map((cardRow) => (
-                  <TableRow key={cardRow._id}>
-                    <TableCell>{cardRow.question}</TableCell>
-                    <TableCell>{cardRow.answer}</TableCell>
-                    <TableCell>{cardRow.updated.slice(0, 10)}</TableCell>
-                    <TableCell>
-                      {cardRow.grade}
-                      <IconButton
-                        sx={{ ml: "30px" }}
-                        onClick={() => deleteCardHandler(cardRow._id)}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                      <IconButton onClick={() => ChangeCardHandler(cardRow._id)}>
-                        <DriveFileRenameOutlineIcon />
-                      </IconButton>
-                    </TableCell>
+            <TableContainer
+              sx={{
+                mt: "24px",
+                fontFamily: "inherit",
+                "& .MuiTableCell-root": {
+                  fontFamily: "inherit",
+                },
+              }}
+              component={Paper}
+            >
+              <Table sx={{ mt: "24px" }}>
+                <TableHead sx={{ background: "rgba(239, 239, 239, 1)" }}>
+                  <TableRow>
+                    <TableCell>Question</TableCell>
+                    <TableCell>Answer</TableCell>
+                    <TableCell>Last Updated</TableCell>
+                    <TableCell>Grade</TableCell>
+                    <TableCell>Actions</TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHead>
+                <TableBody>
+                  {cards.map((cardRow) => (
+                    <TableRow key={cardRow._id}>
+                      <TableCell>{cardRow.question}</TableCell>
+                      <TableCell>{cardRow.answer}</TableCell>
+                      <TableCell>{cardRow.updated.slice(0, 10)}</TableCell>
+                      <TableCell>
+                        <Rating
+                          value={cardRow.grade}
+                          onChange={(event, value) => changeRatingHandler(cardRow._id, value)}
+                        ></Rating>
+                      </TableCell>
+                      <TableCell>
+                        {_id === cardRow.user_id ? (
+                          <>
+                            <IconButton onClick={() => deleteCardHandler(cardRow._id)}>
+                              <DeleteIcon />
+                            </IconButton>
+                            <IconButton onClick={() => ChangeCardHandler(cardRow._id)}>
+                              <DriveFileRenameOutlineIcon />
+                            </IconButton>
+                          </>
+                        ) : null}
+                        <IconButton>
+                          <SchoolIcon />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
           </>
         ) : (
           <Box
@@ -206,6 +251,26 @@ export default function UsersPacksComponent() {
             />
           )}
         </deleteCardModal.ModalComponent>
+        <deletePackModal.ModalComponent>
+          {({ isOpenModal, closeModalHandler }) => (
+            <DeletePackModal
+              deleteModal={isOpenModal}
+              closeDeleteModal={closeModalHandler}
+              packId={packId}
+              packName={decodedPackName}
+            ></DeletePackModal>
+          )}
+        </deletePackModal.ModalComponent>
+        <editPackModal.ModalComponent>
+          {({ isOpenModal, closeModalHandler }) => (
+            <RenamePackModal
+              packId={packId}
+              packName={decodedPackName}
+              onCloseHandler={closeModalHandler}
+              open={isOpenModal}
+            ></RenamePackModal>
+          )}
+        </editPackModal.ModalComponent>
       </Stack>
     </Container>
   )

@@ -10,6 +10,7 @@ import { AxiosError } from "axios"
 import { AlertComponent } from "@/src/components/common/AlertComponent"
 import { useEffect, useState } from "react"
 import { UseLoginMutation } from "@/src/api/apiHooks/auth/useLoginMutation"
+import { Loader } from "@/src/components/common/Loader"
 
 export const LoginForm = () => {
   const [errorTimer, setErrorTimer] = useState<boolean>(true)
@@ -49,6 +50,7 @@ export const LoginForm = () => {
 
   return (
     <>
+      {isPending && <Loader />}
       <form
         onSubmit={handleSubmit(submitHandler)}
         noValidate

@@ -1,13 +1,21 @@
 import { useQuery } from "@tanstack/react-query"
 import { API } from "@/src/api/api"
-import { useState } from "react"
 
-export const useGetPacksQuery = () => {
-  const [itemsOnPage, setItemsOnPage] = useState<string>("10")
-  const [page, setPage] = useState<number>(1)
+interface DtoType {
+  page?: string
+  itemsOnPage?: string
+  packName: string | null
+  min?: number
+  max?: number
+  user_id?: string
+}
+
+export const useGetPacksQuery = (props: DtoType) => {
+  const { packName, page, itemsOnPage, max, min, user_id } = props
   const { data } = useQuery({
-    queryFn: () => API.packs.getPacks(page.toString(), itemsOnPage),
-    queryKey: ["packs"],
+    queryFn: ({ signal }) =>
+      API.packs.getPacks({ page, itemsOnPage, packName, max, min, user_id, signal }),
+    queryKey: ["packs", page, itemsOnPage, packName, max, user_id, min],
   })
-  return { data, setItemsOnPage, setPage, itemsOnPage, page }
+  return { data }
 }

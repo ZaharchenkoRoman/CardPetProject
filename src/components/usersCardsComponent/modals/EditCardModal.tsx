@@ -1,45 +1,35 @@
+import Modal from "@mui/material/Modal"
 import Box from "@mui/material/Box"
 import { IconButton, MenuItem, Select, Stack, TextField } from "@mui/material"
 import Typography from "@mui/material/Typography"
 import CloseIcon from "@mui/icons-material/Close"
 import { CustomButton } from "@/src/components/customButtons/CustomButton"
-import Modal from "@mui/material/Modal"
-import useCreateCardMutation from "@/src/components/mainPageComponent/useCreateCardModal"
 import { useRef } from "react"
-import { useSearchParams } from "next/navigation"
+import { useUpdateCardMutation } from "@/src/api/apiHooks/cards/useUpdateCardMutation"
 
-interface AddNewCardModalProps {
-  open: boolean
-  handleClose: () => void
+interface Props {
+  isOpenModal: boolean
+  closeModalHandler: () => void
+  cardId: string | null
 }
 
-export const AddNewCardModal = (props: AddNewCardModalProps) => {
-  const { handleClose, open } = props
-  const { createNewCard } = useCreateCardMutation()
-
-  const questionRef = useRef<HTMLInputElement | null>(null)
+export const EditCardModal = (props: Props) => {
+  const { isOpenModal, closeModalHandler, cardId } = props
   const answerRef = useRef<HTMLInputElement | null>(null)
-  const params = useSearchParams()
-  const packId = params.get("id")
-
-  const createHandler = () => {
-    const question = questionRef.current?.value as string
-    const answer = answerRef.current?.value as string
-    if (packId) {
-      createNewCard({ packId, answer, question })
-    }
-  }
-
+  const questionRef = useRef<HTMLInputElement | null>(null)
+  const { editCardMutation } = useUpdateCardMutation()
   const submitHandler = () => {
-    createHandler()
-    handleClose()
+    if (!cardId) return null
+    const answer = answerRef.current?.value as string
+    const question = questionRef.current?.value as string
+    editCardMutation({ cardId, question, answer })
+    closeModalHandler()
   }
-
   return (
     <Modal
       sx={{ fontFamily: "inherit" }}
-      open={open}
-      onClose={handleClose}
+      open={isOpenModal}
+      onClose={closeModalHandler}
       aria-labelledby="modal-modal-title"
       aria-describedby="modal-modal-description"
     >
@@ -68,9 +58,9 @@ export const AddNewCardModal = (props: AddNewCardModalProps) => {
             sx={{ fontSize: "18px", fontFamily: "inherit", fontWeight: "500" }}
             component={"h1"}
           >
-            Add new Card
+            Edit Card
           </Typography>
-          <IconButton onClick={handleClose}>
+          <IconButton onClick={closeModalHandler}>
             <CloseIcon />
           </IconButton>
         </Stack>
@@ -95,7 +85,7 @@ export const AddNewCardModal = (props: AddNewCardModalProps) => {
           inputRef={questionRef}
           sx={{ marginTop: "25px", marginBottom: "30px", alignSelf: "center" }}
           variant={"standard"}
-          placeholder={"Question"}
+          placeholder={"New question"}
           slotProps={{
             input: { style: { height: "48px", width: "347px", fontFamily: "inherit" } },
           }}
@@ -104,7 +94,7 @@ export const AddNewCardModal = (props: AddNewCardModalProps) => {
           inputRef={answerRef}
           sx={{ marginTop: "25px", marginBottom: "30px", alignSelf: "center" }}
           variant={"standard"}
-          placeholder={"Answer"}
+          placeholder={"New answer"}
           slotProps={{
             input: { style: { height: "48px", width: "347px", fontFamily: "inherit" } },
           }}
@@ -114,7 +104,7 @@ export const AddNewCardModal = (props: AddNewCardModalProps) => {
           sx={{ mb: "47px", mx: "24px", mt: "35px", justifyContent: "space-between" }}
         >
           <CustomButton
-            onClick={handleClose}
+            onClick={closeModalHandler}
             sx={{
               height: "36px",
               width: "127px",
@@ -136,4 +126,3 @@ export const AddNewCardModal = (props: AddNewCardModalProps) => {
     </Modal>
   )
 }
-AddNewCardModal.displayName = "AddNewCardModal"
