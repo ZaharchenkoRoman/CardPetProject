@@ -3,7 +3,7 @@ import Box from "@mui/material/Box"
 import { IconButton, MenuItem, Select, Stack, TextField } from "@mui/material"
 import Typography from "@mui/material/Typography"
 import CloseIcon from "@mui/icons-material/Close"
-import { CustomButton } from "@/src/components/customButtons/CustomButton"
+import { CustomButton } from "@/src/shared/customButtons/CustomButton"
 import { useRef } from "react"
 import { useUpdateCardMutation } from "@/src/api/apiHooks/cards/useUpdateCardMutation"
 

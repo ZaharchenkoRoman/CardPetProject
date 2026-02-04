@@ -5,6 +5,7 @@ import {
   Container,
   IconButton,
   InputAdornment,
+  Pagination,
   Paper,
   Rating,
   Stack,
@@ -18,41 +19,49 @@ import {
 } from "@mui/material"
 import Link from "next/link"
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace"
-import { CustomButton } from "@/src/components/customButtons/CustomButton"
-import { AddNewCardModal } from "@/src/components/usersCardsComponent/modals/AddNewCardModal"
+import { CustomButton } from "@/src/shared/customButtons/CustomButton"
 import SearchIcon from "@mui/icons-material/Search"
 import MoreVertIcon from "@mui/icons-material/MoreVert"
-import useCustomPopover from "@/src/components/customButtons/CustomPopover"
+import useCustomPopover from "@/src/shared/customButtons/CustomPopover"
 import EditIcon from "@mui/icons-material/Edit"
 import DeleteIcon from "@mui/icons-material/Delete"
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline"
 import { useGetCardsQuery } from "@/src/api/apiHooks/cards/useGetCardsQuery"
-import { useCustomModal } from "@/src/components/customHooks/useCustomModal"
-import { EditCardModal } from "@/src/components/usersCardsComponent/modals/EditCardModal"
-import { useState } from "react"
-import { DeleteCardModal } from "@/src/components/usersCardsComponent/modals/DeleteCardModal"
-import { RenamePackModal } from "@/src/components/mainPageComponent/RenamePackModal"
-import DeletePackModal from "@/src/components/mainPageComponent/DeletePackModal"
+import { ChangeEvent } from "react"
 import TableContainer from "@mui/material/TableContainer"
 import { useUpdateCardMutation } from "@/src/api/apiHooks/cards/useUpdateCardMutation"
 import SchoolIcon from "@mui/icons-material/School"
-import { useAppSelector } from "@/src/store/hooks"
+import { useAppDispatch, useAppSelector } from "@/src/store/hooks"
+import { setCardData } from "@/src/store/cardSlice"
+import useModals from "./modals/useModals"
+import Modals from "@/src/components/usersCardsComponent/modals/Modals"
+import { useCardWithFeatures } from "@/src/components/usersCardsComponent/useCardWithFiatures"
+import Image from "next/image"
+import { Loader } from "@/src/components/common/Loader"
+const ITEMS_PER_PAGE = 10
 
 export default function UsersPackComponent() {
-  const [cardId, setCardId] = useState<string | null>(null)
-  const { decodedPackName, data, packId } = useGetCardsQuery()
-  const { CustomPopoverElement, setAnchor } = useCustomPopover()
-  const changeCardContentModal = useCustomModal()
-  const deleteCardModal = useCustomModal()
-  const deletePackModal = useCustomModal()
-  const editPackModal = useCustomModal()
-  const addCardModal = useCustomModal()
   const { _id } = useAppSelector((state) => state.auth)
+  const dispatch = useAppDispatch()
+  const { editPackModal, deleteCardModal, changeCardContentModal, addCardModal, deletePackModal } =
+    useModals()
+  const { CustomPopoverElement, setAnchor } = useCustomPopover()
   const { editCardMutation } = useUpdateCardMutation()
+  const { debouncedValue, setSearchValue, setCardId, cardId, setPage, page, searchValue } =
+    useCardWithFeatures()
+  const { decodedPackName, data, packId } = useGetCardsQuery({
+    debouncedValue,
+    page,
+    ITEMS_PER_PAGE,
+  })
+
+  const transferDataHandler = (question: string, answer: string) => {
+    dispatch(setCardData({ question, answer, packName: decodedPackName }))
+  }
+  const { deckCover } = useAppSelector((state) => state.cards)
   const changeRatingHandler = (id: string, value: number | null) => {
     editCardMutation({ cardId: id, grade: value })
   }
-
   const ChangeCardHandler = (cardId: string) => {
     setCardId(cardId)
     changeCardContentModal.OpenModalHandler()
@@ -61,9 +70,15 @@ export default function UsersPackComponent() {
     setCardId(id)
     deleteCardModal.OpenModalHandler()
   }
-  if (!data) return null
-  const cards = data.cards
+  const changeSearchQuestionHandler = (e: ChangeEvent<HTMLInputElement>) => {
+    setSearchValue(e.currentTarget.value)
+  }
 
+  if (!data) return <Loader />
+  const cardsTotal = data.cardsTotalCount
+  const CountOfPages = Math.ceil(cardsTotal / ITEMS_PER_PAGE)
+  const cards = data.cards
+  const userId = data.packUserId
   return (
     <Container maxWidth={false}>
       <Stack
@@ -89,17 +104,32 @@ export default function UsersPackComponent() {
           </Typography>
         </Link>
         <Typography sx={{ fontSize: "22px", mt: "27px", fontFamily: "inherit", fontWeight: 600 }}>
-          {decodedPackName}
-          <IconButton
-            size={"small"}
-            sx={{ ml: "8px", border: "1px solid grey" }}
-            onClick={(e) => setAnchor(e.currentTarget)}
+          <Box
+            display="flex"
+            flexDirection="row"
+            columnGap={"10px"}
           >
-            <MoreVertIcon />
-          </IconButton>
+            <Image
+              src={deckCover ?? "/pics/cover.svg"}
+              alt={"logo"}
+              height={100}
+              width={100}
+            ></Image>
+            {decodedPackName}
+            {userId === _id && (
+              <IconButton
+                size={"small"}
+                sx={{ ml: "8px", border: "1px solid grey", width: "40px", height: "40px" }}
+                onClick={(e) => setAnchor(e.currentTarget)}
+              >
+                <MoreVertIcon />
+              </IconButton>
+            )}
+          </Box>
         </Typography>
         <CustomPopoverElement>
           <Box
+            component={"div"}
             alignItems="start"
             justifyContent="center"
             display={"flex"}
@@ -131,6 +161,8 @@ export default function UsersPackComponent() {
               <label>
                 <p>Search</p>
                 <TextField
+                  value={searchValue}
+                  onChange={changeSearchQuestionHandler}
                   size={"small"}
                   slotProps={{
                     input: {
@@ -179,7 +211,7 @@ export default function UsersPackComponent() {
                       <TableCell>
                         <Rating
                           value={cardRow.grade}
-                          onChange={(event, value) => changeRatingHandler(cardRow._id, value)}
+                          onChange={(_, value) => changeRatingHandler(cardRow._id, value)}
                         ></Rating>
                       </TableCell>
                       <TableCell>
@@ -193,17 +225,32 @@ export default function UsersPackComponent() {
                             </IconButton>
                           </>
                         ) : null}
-                        <IconButton>
-                          <SchoolIcon />
-                        </IconButton>
+                        <Link
+                          onClick={() => transferDataHandler(cardRow.question, cardRow.answer)}
+                          href={{
+                            pathname: `/test/${cardRow._id}`,
+                          }}
+                        >
+                          <IconButton>
+                            <SchoolIcon />
+                          </IconButton>
+                        </Link>
                       </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
             </TableContainer>
+            <Pagination
+              sx={{ my: "36px" }}
+              page={page}
+              count={CountOfPages}
+              onChange={(_, page) => {
+                setPage(page)
+              }}
+            ></Pagination>
           </>
-        ) : (
+        ) : userId === _id ? (
           <Box
             display="flex"
             flexDirection={"column"}
@@ -224,53 +271,27 @@ export default function UsersPackComponent() {
               Add new card
             </CustomButton>
           </Box>
+        ) : (
+          <Box
+            display="flex"
+            flexDirection={"column"}
+            alignItems="center"
+            justifyContent="center"
+            mt={"86px"}
+          >
+            <Typography
+              fontFamily={"inherit"}
+              color={"var(--secondary)"}
+            >
+              This pack is empty! sorry.
+            </Typography>
+          </Box>
         )}
-        <addCardModal.ModalComponent>
-          {({ isOpenModal, closeModalHandler }) => (
-            <AddNewCardModal
-              open={isOpenModal}
-              handleClose={closeModalHandler}
-            />
-          )}
-        </addCardModal.ModalComponent>
-        <changeCardContentModal.ModalComponent>
-          {({ isOpenModal, closeModalHandler }) => (
-            <EditCardModal
-              cardId={cardId}
-              isOpenModal={isOpenModal}
-              closeModalHandler={closeModalHandler}
-            />
-          )}
-        </changeCardContentModal.ModalComponent>
-        <deleteCardModal.ModalComponent>
-          {({ isOpenModal, closeModalHandler }) => (
-            <DeleteCardModal
-              isOpenModal={isOpenModal}
-              closeModalHandler={closeModalHandler}
-              cardId={cardId}
-            />
-          )}
-        </deleteCardModal.ModalComponent>
-        <deletePackModal.ModalComponent>
-          {({ isOpenModal, closeModalHandler }) => (
-            <DeletePackModal
-              deleteModal={isOpenModal}
-              closeDeleteModal={closeModalHandler}
-              packId={packId}
-              packName={decodedPackName}
-            ></DeletePackModal>
-          )}
-        </deletePackModal.ModalComponent>
-        <editPackModal.ModalComponent>
-          {({ isOpenModal, closeModalHandler }) => (
-            <RenamePackModal
-              packId={packId}
-              packName={decodedPackName}
-              onCloseHandler={closeModalHandler}
-              open={isOpenModal}
-            ></RenamePackModal>
-          )}
-        </editPackModal.ModalComponent>
+        <Modals
+          packId={packId}
+          decodedPackName={decodedPackName}
+          cardId={cardId}
+        />
       </Stack>
     </Container>
   )

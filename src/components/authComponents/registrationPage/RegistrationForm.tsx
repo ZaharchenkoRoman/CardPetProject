@@ -1,8 +1,8 @@
 "use client"
 
 import { TextField } from "@mui/material"
-import { CustomInputWithEye } from "@/src/components/customButtons/CustomInputWithEye"
-import { CustomButton } from "@/src/components/customButtons/CustomButton"
+import { CustomInputWithEye } from "@/src/shared/customButtons/CustomInputWithEye"
+import { CustomButton } from "@/src/shared/customButtons/CustomButton"
 import { useForm } from "react-hook-form"
 import { schema, schemaType } from "@/src/components/authComponents/registrationPage/schema"
 import { zodResolver } from "@hookform/resolvers/zod"

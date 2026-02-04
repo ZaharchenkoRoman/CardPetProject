@@ -1,6 +1,5 @@
-"use client"
 import Image from "next/image"
-import { CustomButton } from "@/src/components/customButtons/CustomButton"
+import { CustomButton } from "@/src/shared/customButtons/CustomButton"
 import Link from "next/link"
 import { AuthContainer } from "@/src/components/common/authContainers/AuthContainer"
 import { AuthPageContainer } from "@/src/components/common/authContainers/AuthPageContainer"

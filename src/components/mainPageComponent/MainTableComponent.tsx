@@ -14,14 +14,16 @@ import {
 import SchoolIcon from "@mui/icons-material/School"
 import EditIcon from "@mui/icons-material/Edit"
 import DeleteIcon from "@mui/icons-material/Delete"
-import { useAppSelector } from "@/src/store/hooks"
+import { useAppDispatch, useAppSelector } from "@/src/store/hooks"
 import DeletePackModal from "@/src/components/mainPageComponent/DeletePackModal"
 import { RenamePackModal } from "@/src/components/mainPageComponent/RenamePackModal"
 import Link from "next/link"
 import { packType } from "@/src/api/packsApi"
-import { useCustomModal } from "@/src/components/customHooks/useCustomModal"
+import { useCustomModal } from "@/src/shared/customHooks/useCustomModal"
 import { useState } from "react"
 import Image from "next/image"
+import { ParamValue } from "next/dist/server/request/params"
+import { setDeckCover } from "@/src/store/cardSlice"
 interface propsType {
   sx?: SxProps
   cardPacks?: packType[]
@@ -29,13 +31,13 @@ interface propsType {
 
 export default function MainTableComponent(props: propsType) {
   const { sx, cardPacks } = props
-
+  const dispatch = useAppDispatch()
   const { _id } = useAppSelector((state) => state.auth)
 
   const renamePackModal = useCustomModal()
   const deletePackModal = useCustomModal()
 
-  const [packName, setPackName] = useState<string | null>(null)
+  const [packName, setPackName] = useState<ParamValue | null>(null)
   const [packId, setPackId] = useState<string | null>(null)
 
   const deletePackHandler = (name: string, id: string) => {
@@ -43,7 +45,9 @@ export default function MainTableComponent(props: propsType) {
     setPackName(name)
     setPackId(id)
   }
-
+  const imageToPropsHandler = (img: string) => {
+    dispatch(setDeckCover(img))
+  }
   const editPackHandler = (name: string, id: string) => {
     renamePackModal.OpenModalHandler()
     setPackName(name)
@@ -114,6 +118,7 @@ export default function MainTableComponent(props: propsType) {
                 <TableCell>
                   <Box>
                     <Link
+                      onClick={() => imageToPropsHandler(packRow.deckCover)}
                       href={{
                         pathname: `/my-packs/${packRow.name}`,
                         query: { id: packRow._id },

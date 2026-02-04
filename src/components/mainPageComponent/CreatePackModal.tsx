@@ -4,7 +4,7 @@ import Typography from "@mui/material/Typography"
 import Modal from "@mui/material/Modal"
 import { Checkbox, FormControlLabel, IconButton, Stack, TextField } from "@mui/material"
 import CloseIcon from "@mui/icons-material/Close"
-import { CustomButton } from "@/src/components/customButtons/CustomButton"
+import { CustomButton } from "@/src/shared/customButtons/CustomButton"
 import { useCreatePackHandler } from "@/src/components/mainPageComponent/useCreatePackHandler"
 import { Loader } from "@/src/components/common/Loader"
 import Image from "next/image"
@@ -17,8 +17,10 @@ interface Props {
 export default function CreatePackModal(props: Props) {
   const [cover, setCover] = useState<string | null>(null)
   const { handleClose, open } = props
-  const { createPackHandler, setIsPrivate, isPrivate, nameRef, isPending, isSuccess } =
-    useCreatePackHandler(cover, handleClose)
+  const { createPackHandler, setIsPrivate, isPrivate, nameRef, isPending } = useCreatePackHandler(
+    cover,
+    handleClose
+  )
 
   const changeCoverHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const cover = e.target.files?.[0]

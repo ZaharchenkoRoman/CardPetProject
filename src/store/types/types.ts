@@ -12,3 +12,9 @@ export interface initialStateType {
   error?: string
   token: string
 }
+export interface CardState {
+  question?: string
+  answer?: string
+  packName?: string
+  deckCover?: string
+}

@@ -1,7 +1,7 @@
 import Box from "@mui/material/Box"
 import { Stack } from "@mui/material"
 import Typography from "@mui/material/Typography"
-import { CustomButton } from "@/src/components/customButtons/CustomButton"
+import { CustomButton } from "@/src/shared/customButtons/CustomButton"
 import Modal from "@mui/material/Modal"
 import { useDeleteCardMutation } from "@/src/api/apiHooks/cards/useDeleteCardMutation"
 

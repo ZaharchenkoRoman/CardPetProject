@@ -3,7 +3,10 @@ import { API } from "@/src/api/api"
 import { usePathname, useRouter } from "next/navigation"
 import { ParamValue } from "next/dist/server/request/params"
 
-export const useEditPackMutation = (props: { packName: ParamValue; packId: string | null }) => {
+export const useEditPackMutation = (props: {
+  packName: ParamValue | null
+  packId: string | null
+}) => {
   const { packName, packId } = props
   const pathname = usePathname()
   const router = useRouter()

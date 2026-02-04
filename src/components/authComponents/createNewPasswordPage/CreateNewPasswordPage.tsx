@@ -1,7 +1,7 @@
 "use client"
 
-import { CustomButton } from "@/src/components/customButtons/CustomButton"
-import { CustomInputWithEye } from "@/src/components/customButtons/CustomInputWithEye"
+import { CustomButton } from "@/src/shared/customButtons/CustomButton"
+import { CustomInputWithEye } from "@/src/shared/customButtons/CustomInputWithEye"
 import Link from "next/link"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"

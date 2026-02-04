@@ -3,9 +3,11 @@ import { AxiosInstance } from "axios"
 export class CardsApi {
   constructor(private instance: AxiosInstance) {}
 
-  getCards = async (packId?: string | null) => {
+  getCards = async ({ packId, cardQuestion, pageCount, page }: cardsParamType) => {
     return await this.instance
-      .get<getCardsResponse>(`/cards/card?cardsPack_id=${packId}`)
+      .get<getCardsResponse>(`/cards/card?cardsPack_id=${packId}`, {
+        params: { packId, pageCount, page, cardQuestion },
+      })
       .then((res) => res.data)
   }
 
@@ -45,6 +47,13 @@ export class CardsApi {
 }
 
 /*Types*/
+
+interface cardsParamType {
+  packId?: string | null
+  cardQuestion?: string | null
+  page?: number | null
+  pageCount?: number | null
+}
 
 interface createCardDTO {
   packId: string

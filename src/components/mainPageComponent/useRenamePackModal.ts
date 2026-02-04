@@ -4,7 +4,7 @@ import { ParamValue } from "next/dist/server/request/params"
 interface Props {
   packId: string | null
   onCloseHandler: () => void
-  packName: ParamValue
+  packName: ParamValue | null
 }
 export const useRenamePackModal = (props: Props) => {
   const { onCloseHandler, packId, packName } = props

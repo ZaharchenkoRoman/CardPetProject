@@ -1,6 +1,6 @@
 "use client"
 
-import { CustomButton } from "@/src/components/customButtons/CustomButton"
+import { CustomButton } from "@/src/shared/customButtons/CustomButton"
 import {
   Box,
   Grid,
@@ -14,16 +14,16 @@ import {
   TextField,
   Typography,
 } from "@mui/material"
-import CustomToggleButton from "@/src/components/customButtons/CustomToggleButton"
+import CustomToggleButton from "@/src/shared/customButtons/CustomToggleButton"
 import FilterAltOffIcon from "@mui/icons-material/FilterAltOff"
 import MainTableComponent from "@/src/components/mainPageComponent/MainTableComponent"
 import SearchIcon from "@mui/icons-material/Search"
 import CreatePackModal from "@/src/components/mainPageComponent/CreatePackModal"
-import { useCustomModal } from "@/src/components/customHooks/useCustomModal"
+import { useCustomModal } from "@/src/shared/customHooks/useCustomModal"
 import { useAppSelector } from "@/src/store/hooks"
 import { useSearch } from "@/src/components/mainPageComponent/useSearch"
 import { Loader } from "@/src/components/common/Loader"
-import { useGetPacksWithDebounce } from "@/src/components/customHooks/useGetPacksWithDebounce"
+import { useGetPacksWithDebounce } from "@/src/shared/customHooks/useGetPacksWithDebounce"
 
 export default function MainPage() {
   const { searchValue, searchHandler, setSearchValue } = useSearch()
@@ -36,6 +36,9 @@ export default function MainPage() {
     setMinPacks(0)
   }
 
+  const handleChangeSlider = (e: Event, newValue: number) => {
+    setMinPacks(newValue)
+  }
   const {
     setMinPacks,
     cardsPacks,
@@ -51,6 +54,7 @@ export default function MainPage() {
   } = useGetPacksWithDebounce(searchValue)
   if (!cardsPacks) return null
   if (!_id) return <Loader />
+
   return (
     <Stack sx={{ px: "136px", pb: "30px" }}>
       <Box
@@ -128,15 +132,18 @@ export default function MainPage() {
               gap={"20px"}
             >
               <Slider
+                onChange={handleChangeSlider}
+                step={10}
                 value={minPacks}
                 min={0}
                 max={99}
                 sx={{ ml: "10px" }}
+                marks
               ></Slider>
               <TextField
+                type={"number"}
                 value={minPacks}
                 onChange={changeMinPacks}
-                sx={{ width: "67px" }}
                 size={"small"}
               ></TextField>
             </Box>

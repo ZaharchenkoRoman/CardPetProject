@@ -1,6 +1,6 @@
 "use client"
 
-import { CustomButton } from "@/src/components/customButtons/CustomButton"
+import { CustomButton } from "@/src/shared/customButtons/CustomButton"
 import Link from "next/link"
 import { TextField } from "@mui/material"
 import { useForm } from "react-hook-form"

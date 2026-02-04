@@ -2,7 +2,7 @@ import Box from "@mui/material/Box"
 import { Checkbox, FormControlLabel, IconButton, Stack, TextField } from "@mui/material"
 import Typography from "@mui/material/Typography"
 import CloseIcon from "@mui/icons-material/Close"
-import { CustomButton } from "@/src/components/customButtons/CustomButton"
+import { CustomButton } from "@/src/shared/customButtons/CustomButton"
 import Modal from "@mui/material/Modal"
 import * as React from "react"
 import { useRenamePackModal } from "@/src/components/mainPageComponent/useRenamePackModal"
@@ -12,7 +12,7 @@ interface Props {
   onCloseHandler: () => void
   open: boolean
   packId: string | null
-  packName?: ParamValue
+  packName?: ParamValue | null
 }
 
 export const RenamePackModal = (props: Props) => {

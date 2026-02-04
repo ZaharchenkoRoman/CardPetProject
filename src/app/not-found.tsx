@@ -1,6 +1,6 @@
 import { Box, Stack, Typography } from "@mui/material"
 import Image from "next/image"
-import { CustomButton } from "@/src/components/customButtons/CustomButton"
+import { CustomButton } from "@/src/shared/customButtons/CustomButton"
 import Link from "next/link"
 export default function NotFound() {
   return (

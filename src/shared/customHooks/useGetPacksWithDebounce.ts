@@ -1,5 +1,5 @@
 import { useGetPacksQuery } from "@/src/api/apiHooks/packs/useGetPacksQuery"
-import { useDebounce } from "@/src/components/customHooks/useDebounce"
+import { useDebounce } from "@/src/shared/customHooks/useDebounce"
 import { SelectChangeEvent } from "@mui/material"
 import { ChangeEvent, useState } from "react"
 import { useAppSelector } from "@/src/store/hooks"
@@ -12,12 +12,13 @@ export const useGetPacksWithDebounce = (text: string | null) => {
   const { debouncedValue } = useDebounce(text, 1000)
   const [itemsOnPage, setItemsOnPage] = useState<string>("10")
   const [page, setPage] = useState<number>(1)
+  const { debouncedValue: minValueOfPacks } = useDebounce(minPacks, 500)
   const { data } = useGetPacksQuery({
     packName: debouncedValue,
     page: String(page),
     itemsOnPage,
     user_id: alignment === "My" ? _id : undefined,
-    min: minPacks,
+    min: minValueOfPacks,
   })
   const itemsOnPageHandler = (e: SelectChangeEvent) => {
     const value = e.target.value as string

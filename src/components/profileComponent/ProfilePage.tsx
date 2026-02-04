@@ -1,6 +1,6 @@
 "use client"
 
-import { CustomButton } from "@/src/components/customButtons/CustomButton"
+import { CustomButton } from "@/src/shared/customButtons/CustomButton"
 import { AuthPageContainer } from "@/src/components/common/authContainers/AuthPageContainer"
 import { AuthContainer } from "@/src/components/common/authContainers/AuthContainer"
 import { Avatar, Box, IconButton, InputAdornment, TextField, Typography } from "@mui/material"
